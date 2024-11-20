@@ -12,6 +12,7 @@ const authRoutes = require('./routes/authRoute');
 const blogRoutes = require('./routes/blogRoute');
 const planRoutes = require('./routes/planRoute');
 const homeRoutes = require('./routes/HomeRoutes/homeRoute');
+const corporateHomeRoutes = require('./routes/HomeRoutes/corporateHome');
 const aboutRoutes = require('./routes/aboutRoute');
 const statRoutes = require('./routes/statRoute');
 const courseRoutes = require('./routes/CourseRoutes/courseRoute');
@@ -44,6 +45,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/home", homeRoutes);
+app.use("/api/v1/corporate/home", corporateHomeRoutes);
 app.use("/api/v1/blog", blogRoutes);
 app.use("/api/v1/plan", planRoutes);
 app.use("/api/v1/about", aboutRoutes);

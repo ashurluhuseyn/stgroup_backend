@@ -1,9 +1,8 @@
 const { Sequelize } = require('sequelize')
 require('dotenv').config()
 
-const sequelize = new Sequelize('postgres://postgres:test@localhost:8080/academy', {
-    dialect: 'postgres',
-    protocol: 'postgres'
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres'
 })
 
 const testConnection = async () => {

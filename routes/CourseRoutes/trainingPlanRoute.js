@@ -1,10 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const { createTrainingPlan, getPlansByCourseId, getPlans, deleteTrainingPlan } = require('../../controllers/CourseController/trainingPlanController')
+const { authenticate, authorize } = require('../../middlewares/auth');
+const { createTrainingPlan, getPlansByCourseId, getPlans, deleteTrainingPlan, getPlanById, updateTrainingPlan } = require('../../controllers/CourseController/trainingPlanController')
 
-router.post('/', createTrainingPlan)
+router.post('/',  authenticate, authorize(['superAdmin', 'admin', 'user']), createTrainingPlan)
 router.get('/', getPlans)
-router.get('/:id', getPlansByCourseId)
-router.delete('/:id', deleteTrainingPlan); 
+router.get('/:id', getPlanById)
+router.get('/:id/course', getPlansByCourseId)
+router.patch('/:id',  authenticate, authorize(['superAdmin', 'admin', 'user']), updateTrainingPlan)
+router.delete('/:id', authenticate, authorize(['superAdmin', 'admin', 'user']), deleteTrainingPlan); 
 
 module.exports = router;

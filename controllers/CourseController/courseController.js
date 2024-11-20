@@ -4,6 +4,7 @@ const Course = require('../../models/CourseModel/course');
 const Category = require('../../models/category');
 const Teacher = require('../../models/teacher');
 const FieldPlan = require('../../models/plan');
+const TrainingPlan = require('../../models/CourseModel/trainingPlan');
 
 const createCourse = async (req, res) => {
   try {
@@ -70,45 +71,62 @@ const getDataForCourseDetail = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const course = await Course.findOne({
-      where: { id },
-      include: [
-        {
-          model: Category,
-          as: 'category',
-          attributes: ['title'],
-        },
-        {
-          model: Teacher,
-          as: 'teachers',
-          through: { attributes: [] }, 
-          attributes: ['id', 'fullname', 'image', 'description'],
-        },
-      ],
-    });
+    const [
+      course,
+      otherCourses,
+      allTeachers,
+      trainingPlans,
+      plans
+    ] = await Promise.all([
+      Course.findOne({
+        where: { id },
+        include: [
+          {
+            model: Category,
+            as: 'category',
+            attributes: ['title'],
+          },
+        ],
+      }),
+      Course.findAll({ limit: 6 }),
+      Teacher.findAll({
+        attributes: ['id', 'fullname', 'image', 'description', 'courses'],
+        include: [
+          {
+            model: Category,
+            as: 'category',
+            attributes: ['title'],
+          },
+        ],
+      }),
+      TrainingPlan.findAll({ where: { courseID: id } }),
+      FieldPlan.findAll({
+        attributes: ['id', 'title', 'description', 'image'],
+      }),
+    ]);
 
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
 
-    const plans = await FieldPlan.findAll({
-      where: { courseID: id },
-      attributes: ['id', 'title', 'description', 'image'],
-    });
+    await course.increment('viewCount', { by: 1 });
+
+    const filteredTeachers = allTeachers.filter(teacher =>
+      teacher.courses.includes(Number(id))
+    );
 
     res.status(200).json({
       course,
+      teachers: filteredTeachers,
       plans,
+      trainingPlans,
+      otherCourses,
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error retrieving course details', error });
   }
 };
-
-
-
-module.exports = { getDataForCourseDetail };
 
 
 const getCoursesByCategory = async (req, res) => {

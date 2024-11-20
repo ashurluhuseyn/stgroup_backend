@@ -24,7 +24,6 @@ const TrainingPlan = sequelize.define('TrainingPlan', {
       key: 'id',
     },
     allowNull: false,
-    onDelete: 'CASCADE', 
   },
 }, {
   tableName: 'training_plans',

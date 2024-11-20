@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-const { createCourse, getAllCourses, getCourseById, getDataForCourseDetail,  getCoursesByCategory, updateCourse, increaseViewCount, deleteCourse } = require('../../controllers/CourseController/courseController');
 const { authenticate, authorize } = require('../../middlewares/auth');
+const { createCourse, getAllCourses, getCourseById, getDataForCourseDetail,  getCoursesByCategory, updateCourse, increaseViewCount, deleteCourse } = require('../../controllers/CourseController/courseController');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {

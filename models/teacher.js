@@ -29,6 +29,11 @@ const Teacher = sequelize.define('Teacher', {
     },
     allowNull: false,
   },
+  courses: {
+    type: DataTypes.JSON, // Kurs ID-lərini array kimi saxlamaq üçün
+    allowNull: true,
+    defaultValue: [], // Əvvəlcədən boş array
+  },
 }, {
   tableName: 'teachers',
   timestamps: false,

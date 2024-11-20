@@ -3,22 +3,65 @@ const path = require('path');
 const Teacher = require('../models/teacher');
 const Category = require('../models/category');
 
+
 const createTeacher = async (req, res) => {
   try {
-    const { fullname, description, categoryID, courseID } = req.body;
+    const { fullname, description, categoryID, courses } = req.body;
     const image = req.file ? req.file.filename : null;
+
+    // courses sahəsini JSON array kimi parse etmək
+    const parsedCourses = courses ? JSON.parse(courses) : [];
+
+    // Validation
+    if (!Array.isArray(parsedCourses)) {
+      return res.status(400).json({ message: 'Courses must be an array' });
+    }
 
     const newTeacher = await Teacher.create({
       fullname,
       description,
-      image, 
-      categoryID
+      image,
+      categoryID,
+      courses: parsedCourses,
     });
 
-    res.status(201).json({ message: 'Teacher created successfully', data: newTeacher });
+    res.status(201).json({ 
+      message: 'Teacher created successfully', 
+      data: {
+        id: newTeacher.id,
+        fullname: newTeacher.fullname,
+        image: newTeacher.image,
+        description: newTeacher.description,
+        courses: newTeacher.courses,
+        categoryID: newTeacher.categoryID
+      }
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error creating teacher', error });
+  }
+};
+
+
+
+const addCourseToTeacher = async (req, res) => {
+  try {
+    const { teacherID, courseID } = req.body;
+
+    const teacher = await Teacher.findByPk(teacherID);
+
+    if (!teacher) {
+      return res.status(404).json({ message: 'Teacher not found' });
+    }
+
+    const updatedCourses = [...teacher.courses, courseID];
+
+    await teacher.update({ courses: updatedCourses });
+
+    res.status(200).json({ message: 'Course added to teacher successfully', data: teacher });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error adding course to teacher', error });
   }
 };
 
@@ -119,7 +162,7 @@ const deleteTeacher = async (req, res) => {
       const teacherToDelete = await Teacher.findByPk(id);
   
       if (!teacherToDelete) {
-        return res.status(404).json({ message: 'Blog not found' });
+        return res.status(404).json({ message: 'Teacher not found' });
       }
   
       const imagePath = path.join(__dirname, '..', 'uploads', 'teachers', teacherToDelete.image);

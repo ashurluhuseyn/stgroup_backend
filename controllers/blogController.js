@@ -127,10 +127,6 @@ const updateBlog = async (req, res) => {
     const { title, description, categoryID } = req.body;
     const image = req.file ? req.file.filename : null;
 
-    console.log(id);
-    console.log(req.body);
-    
-
     const blogToUpdate = await Blog.findByPk(id);
 
     if (!blogToUpdate) {

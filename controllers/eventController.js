@@ -62,12 +62,23 @@ const getEventById = async (req, res) => {
       return res.status(404).json({ message: 'Event not found' });
     }
 
-    res.status(200).json({ event });
+    // Şəkil üçün tam URL əlavə edin
+    const imageUrl = event.image
+      ? `${req.protocol}://${req.get('host')}/uploads/events/${event.image}`
+      : null;
+
+    res.status(200).json({
+      event: {
+        ...event.toJSON(),
+        image: imageUrl, // Şəkil adı əvəzinə tam URL
+      },
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error retrieving event', error });
   }
 };
+
 
 const getEventDetails = async (req, res) => {
   try {
@@ -81,8 +92,7 @@ const getEventDetails = async (req, res) => {
         attributes: ['id', 'title'], 
       },
     });
-
-
+    
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
     }
@@ -92,7 +102,11 @@ const getEventDetails = async (req, res) => {
         categoryID: event.category.id,
         id: { [Op.ne]: id },
       },
-      attributes: ['id', 'title', 'description'],
+      include: {
+        model: Category,
+        as: 'category',
+        attributes: ['id', 'title'],
+      },
     });
 
     res.status(200).json({
@@ -109,7 +123,16 @@ const getEventsByCategory = async (req, res) => {
   try {
     const { categoryID } = req.params;
 
-    const events = await Event.findAll({ where: { categoryID } });
+    const events = await Event.findAll({
+      where: { categoryID },
+      include: [
+        {
+          model: Category,
+          as: 'category',
+          attributes: ['title'],
+        },
+      ],
+    });
 
     if (!events.length) {
       return res.status(404).json({ message: 'No events found for this category' });
@@ -122,10 +145,11 @@ const getEventsByCategory = async (req, res) => {
   }
 };
 
+
 const updateEvent = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, description2, categoryID } = req.body;
+    const { title, description, categoryID } = req.body;
     const image = req.file ? req.file.filename : null;
 
     const eventToUpdate = await Event.findByPk(id);
@@ -144,7 +168,6 @@ const updateEvent = async (req, res) => {
     const updatedData = {
       title: title || eventToUpdate.title,
       description: description || eventToUpdate.description,
-      description2: description2 || eventToUpdate.description2,
       image: image || eventToUpdate.image,
       categoryID: categoryID || eventToUpdate.categoryID,
       updateDate: new Date()
@@ -167,6 +190,9 @@ const updateEvent = async (req, res) => {
     res.status(500).json({ message: 'Error updating event', error });
   }
 };
+
+
+
 
 const deleteEvent = async (req, res) => {
     try {
