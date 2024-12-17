@@ -5,7 +5,6 @@ require('dotenv').config();
 const path = require('path');
 const cors = require('cors');
 const { sequelize } = require('./config/db');
-const { Server } = require('socket.io');
 
 const PORT = process.env.PORT || 4000;
 const authRoutes = require('./routes/authRoute');
@@ -72,33 +71,6 @@ sequelize.sync({ force: false, alter: true })
   });
 
 
-const server = http.createServer(app);
-
-const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST"]
-  }
-});
-
-io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
-
-  socket.on("sendMessage", (message) => {
-    console.log("Received message:", message);
-  
-    if (message.toLowerCase().includes("salam")) {
-      socket.emit("receiveMessage", "Server: Salam! Necəsiniz?");
-    } else {
-      socket.emit("receiveMessage", "Server: Sualınızı daha dəqiq verin.");
-    }
-  });
-
-  socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
-  });
-});
-
-server.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
