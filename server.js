@@ -26,6 +26,11 @@ const trainingPlanRoutes = require('./routes/CourseRoutes/trainingPlanRoute');
 const academicApplyRoutes = require('./routes/ApplyRoutes/academicApply');
 const corporateApplyRoutes = require('./routes/ApplyRoutes/corporateApply');
 
+
+const {createSuperUser} = require('./controllers/superUserController'); 
+createSuperUser()
+
+
 // DB connection
 const { testConnection } = require('./config/db');
 testConnection();
