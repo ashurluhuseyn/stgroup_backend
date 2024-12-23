@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const User = require('../models/auth');
+const User = require('../models/user');
 
 const createSuperUser = async () => {
   try {
